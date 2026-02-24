@@ -1,18 +1,5 @@
-package org.acme.extension;
+package org.acme;
 
-/**
- * A classloader that demonstrates the class identity issue with JUnit's Kotlin
- * suspend function detection.
- *
- * When kotlin.coroutines.Continuation is loaded by this classloader (child-first),
- * it creates a DIFFERENT class instance than the one JUnit's KotlinReflectionUtils
- * cached during its static initialization. This causes the identity check
- * (method.getParameterTypes()[parameterCount - 1] == kotlinCoroutineContinuation)
- * to fail in JUnit's isKotlinSuspendingFunction() method.
- *
- * This mimics what Quarkus's FacadeClassLoader does, which also loads Kotlin classes
- * in isolation.
-*/
 public class FacadeClassLoader extends java.net.URLClassLoader {
 
     public FacadeClassLoader(ClassLoader delegate) {
@@ -46,17 +33,15 @@ public class FacadeClassLoader extends java.net.URLClassLoader {
         synchronized (getClassLoadingLock(name)) {
             Class<?> c = findLoadedClass(name);
             if (c == null) {
-                // KEY: Load kotlin.* classes child-first (from our own URLs)
-                // This creates a separate class instance for kotlin.coroutines.Continuation
-                // that breaks JUnit's identity check in isKotlinSuspendingFunction()
-                if (name.startsWith("kotlin.")) {
+                // KEY: Always load org.junit. and java. classes from the parent class loader
+                if (name.startsWith("org.junit.") || name.startsWith("java.")) {
+                    c = getParent().loadClass(name);
+                } else {
                     try {
                         c = findClass(name);
                     } catch (ClassNotFoundException e) {
                         c = getParent().loadClass(name);
                     }
-                } else {
-                    c = getParent().loadClass(name);
                 }
             }
             if (resolve) {
@@ -64,5 +49,10 @@ public class FacadeClassLoader extends java.net.URLClassLoader {
             }
             return c;
         }
+    }
+
+    @Override
+    public String getName() {
+        return "facade";
     }
 }

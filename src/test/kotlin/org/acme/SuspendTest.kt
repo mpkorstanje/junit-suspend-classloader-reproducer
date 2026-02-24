@@ -13,4 +13,5 @@ class SuspendTest {
     fun normalTestShouldRun() {
         assertTrue(true)
     }
+
 }
