@@ -4,6 +4,8 @@ import org.junit.platform.engine.DiscoveryIssue;
 import org.junit.platform.engine.UniqueId;
 import org.junit.platform.launcher.LauncherDiscoveryListener;
 import org.junit.platform.launcher.LauncherSession;
+import org.junit.platform.launcher.TestIdentifier;
+import org.junit.platform.launcher.TestPlan;
 import org.junit.platform.launcher.core.LauncherFactory;
 
 import java.io.File;
@@ -40,7 +42,10 @@ public class Main {
         try (LauncherSession session = LauncherFactory.openSession()) {
             var launcher = session.getLauncher();
             launcher.registerLauncherDiscoveryListeners(new IssueReporter());
-            launcher.discover(discoveryRequest);
+            TestPlan testPlan = launcher.discover(discoveryRequest);
+            testPlan.getRoots().forEach(testIdentifier -> testPlan.getDescendants(testIdentifier).stream()
+                    .map(TestIdentifier::getDisplayName)
+                    .forEach(System.out::println));
         }
 
     }
