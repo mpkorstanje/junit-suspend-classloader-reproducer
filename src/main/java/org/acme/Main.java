@@ -34,10 +34,7 @@ public class Main {
     public static final String MAVEN_HOME = "/home/mpkorstanje/.m2/";
 
 public static void main(String[] args) throws MalformedURLException {
-
     var classLoader = Thread.currentThread().getContextClassLoader();
-    Thread.currentThread().setContextClassLoader(classLoader);
-
     var testClassLoader = new URLClassLoader(getTestClasspathURLs(), classLoader);
     var discoveryRequest = discoveryRequest()
             .selectors(selectClass(testClassLoader, "org.acme.SuspendTest"))
