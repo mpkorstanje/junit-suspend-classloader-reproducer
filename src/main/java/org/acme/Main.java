@@ -38,7 +38,7 @@ public static void main(String[] args) throws MalformedURLException {
     var classLoader = Thread.currentThread().getContextClassLoader();
     Thread.currentThread().setContextClassLoader(classLoader);
 
-    var testClassLoader = new URLClassLoader(getClasspathURLs(), classLoader);
+    var testClassLoader = new URLClassLoader(getTestClasspathURLs(), classLoader);
     var discoveryRequest = discoveryRequest()
             .selectors(selectClass(testClassLoader, "org.acme.SuspendTest"))
             .build();
@@ -54,7 +54,7 @@ public static void main(String[] args) throws MalformedURLException {
 
 }
 
-    private static java.net.URL[] getClasspathURLs() throws MalformedURLException {
+    private static java.net.URL[] getTestClasspathURLs() throws MalformedURLException {
         return new URL[]{
                 new File("target/test-classes").toURL(),
                 new File(MAVEN_HOME + "repository/org/jetbrains/kotlin/kotlin-stdlib/2.3.0/kotlin-stdlib-2.3.0.jar").toURL(),
