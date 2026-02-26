@@ -22,33 +22,37 @@ import static org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder.d
 
     1. Run mvn clean test-compile
     2. Change MAVEN_HOME to the right directory.
-    2. Run main.
+    3. Run main.
+    4. Observe: Warning
+    5. Add Kotlin to runtime classpath (in pom.xml)
+    6. Run main.
+    7. Observe: No warning. Both tests logged.
 
  */
 public class Main {
 
     public static final String MAVEN_HOME = "/home/mpkorstanje/.m2/";
 
-    public static void main(String[] args) throws MalformedURLException {
+public static void main(String[] args) throws MalformedURLException {
 
-        var classLoader = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(classLoader);
+    var classLoader = Thread.currentThread().getContextClassLoader();
+    Thread.currentThread().setContextClassLoader(classLoader);
 
-        var testClassLoader = new URLClassLoader(getClasspathURLs(), classLoader);
-        var discoveryRequest = discoveryRequest()
-                .selectors(selectClass(testClassLoader, "org.acme.SuspendTest"))
-                .build();
+    var testClassLoader = new URLClassLoader(getClasspathURLs(), classLoader);
+    var discoveryRequest = discoveryRequest()
+            .selectors(selectClass(testClassLoader, "org.acme.SuspendTest"))
+            .build();
 
-        try (LauncherSession session = LauncherFactory.openSession()) {
-            var launcher = session.getLauncher();
-            launcher.registerLauncherDiscoveryListeners(new IssueReporter());
-            TestPlan testPlan = launcher.discover(discoveryRequest);
-            testPlan.getRoots().forEach(testIdentifier -> testPlan.getDescendants(testIdentifier).stream()
-                    .map(TestIdentifier::getDisplayName)
-                    .forEach(System.out::println));
-        }
-
+    try (LauncherSession session = LauncherFactory.openSession()) {
+        var launcher = session.getLauncher();
+        launcher.registerLauncherDiscoveryListeners(new IssueReporter());
+        TestPlan testPlan = launcher.discover(discoveryRequest);
+        testPlan.getRoots().forEach(testIdentifier -> testPlan.getDescendants(testIdentifier).stream()
+                .map(TestIdentifier::getDisplayName)
+                .forEach(System.out::println));
     }
+
+}
 
     private static java.net.URL[] getClasspathURLs() throws MalformedURLException {
         return new URL[]{
